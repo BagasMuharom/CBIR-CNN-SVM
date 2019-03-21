@@ -1,0 +1,1 @@
+# Content-Based Image Retrieval dengan CNN-SVM dan Gabor Filter Sebagai Kernel Ekstraksi Fitur
