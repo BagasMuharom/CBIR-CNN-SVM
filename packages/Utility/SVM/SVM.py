@@ -5,7 +5,6 @@ reference: http://cs229.stanford.edu/materials/smo.pdf
 
 '''
 
-
 import numpy as np
 import math
 import random
@@ -22,6 +21,13 @@ def progressBar(current, total):
     text = "Validating: [{0}] {1:.1f}%".format( "=" * block + ">" + "." * (bar_length - block), progress * 100)
     sys.stdout.write('\r' + text)
 
+class Callback():
+
+    def __init__(self):
+        pass
+
+    def set_model(self, model):
+        self.model = model
 
 # Kelas untuk mengatur output berupa progress dari SVM
 class ProgressManager():
@@ -76,7 +82,7 @@ class SVM():
         self.__Y = Y
         self.__initClassesList()
 
-        if val_data is not None:
+        if not val_data:
             self.__X_val = val_data[0]
             self.__Y_val = val_data[1]
 
@@ -96,7 +102,7 @@ class SVM():
         X_train, Y_train = self.__getXYBinary(self.__X, self.__Y, i, j)
         val_data = None
 
-        if self.__X_val is not None and self.__Y_val is not None:
+        if not self.__X_val and not self.__Y_val:
             X_val, Y_val = self.__getXYBinary(self.__X_val, self.__Y_val, i, j)
             val_data = (X_val, Y_val)
 
@@ -126,15 +132,16 @@ class SVM():
                     bias = self.__bias[i][j]
 
                     result = np.sum(data * weight) + bias
-
-                    if result < 0:
-                        win[i] += 1
-                    else:
-                        win[j] += 1
+                    win[i if result < 0 else j] += 1
 
             y_pred.append(self.__classes[np.argmax(win)])
 
         return y_pred
+
+    def evaluate(self, X, Y):
+        y_pred = self.predict(X)
+
+        return accuracy_score(Y, y_pred)
 
     def summary(self):
         total_svm = self.__classes.shape[0] * (self.__classes.shape[0] - 1) / 2
@@ -206,7 +213,7 @@ class SMO():
         self.__X = X
         self.__Y = Y
 
-        if val_data is not None:
+        if not val_data:
             self.__X_val = val_data[0]
             self.__Y_val = val_data[1]
 
@@ -217,7 +224,7 @@ class SMO():
             sys.stdout.write('\nFitting for class ' + str(self.__alias[-1]) + ' and ' + str(self.__alias[1]))
             sys.stdout.write('\nTrain on ' + str(X.shape[0]) + ' samples')
 
-            if val_data is not None:
+            if not val_data:
                 sys.stdout.write(', validate on ' + str(self.__X_val.shape[0]) + ' samples')
 
         def printAccuracyInfo():
@@ -228,15 +235,15 @@ class SMO():
             y_true = self.__Y
             acc = accuracy_score(y_true, y_pred)
 
-            if val_data is not None:
-                val_acc = self.validate(self.__X_val, self.__Y_val)
+            if not val_data:
+                val_acc = self.evaluate(self.__X_val, self.__Y_val)
                 sys.stdout.write('\r')
             else:
                 sys.stdout.write('\n')
 
             sys.stdout.write('acc: {0:.2f}'.format(acc))
 
-            if val_data is not None:
+            if not val_data:
                 sys.stdout.write(' - val_acc: {0:.2f}'.format(val_acc))
 
         def printAfterFit():
@@ -267,7 +274,7 @@ class SMO():
 
         return y_pred
 
-    def validate(self, X, Y):
+    def evaluate(self, X, Y):
         sys.stdout.write('\nValidating ...')
         y_pred = []
 
@@ -293,19 +300,28 @@ class SMO():
         E = np.zeros(shape = (self.__X.shape[0], 1)) #will be used in the loop 
 
         def countB(i, j):
-            ii = getKernelMatrix(i, i)
-            ij = getKernelMatrix(i, j)
-            jj = getKernelMatrix(j, j)
-
-            b1 = b - E[i] - (self.__Y[i] * ii * (alpha[i] - alpha_old[i])) - (self.__Y[j] * ij * (alpha[j] - alpha_old[j]))
-            b2 = b - E[j] - (self.__Y[i] * ij * (alpha[i] - alpha_old[i])) - (self.__Y[j] * jj * (alpha[j] - alpha_old[j]))
 
             if (alpha[i] > 0 and alpha[i] < self.__C):
+                ii = getKernelMatrix(i, i)
+                ij = getKernelMatrix(i, j)
+                b1 = b - E[i] - (self.__Y[i] * ii * (alpha[i] - alpha_old[i])) - (self.__Y[j] * ij * (alpha[j] - alpha_old[j]))
+
                 return b1
             elif (alpha[j] > 0 and alpha[j] < self.__C):
+                ij = getKernelMatrix(i, j)
+                jj = getKernelMatrix(j, j)
+                b2 = b - E[j] - (self.__Y[i] * ij * (alpha[i] - alpha_old[i])) - (self.__Y[j] * jj * (alpha[j] - alpha_old[j]))
+
                 return b2
             else:
-                return (b1 + b2) / 2.0
+                ii = getKernelMatrix(i, i)
+                ij = getKernelMatrix(i, j)
+                jj = getKernelMatrix(j, j)
+                delta_a_i = alpha[i] - alpha_old[i]
+                delta_a_j = alpha[j] - alpha_old[j]
+                b1_b2 = (2 * b) - E[i] -E[j] - (self.__Y[i] * ii * delta_a_i) - (self.__Y[j] * ij * delta_a_j) - (self.__Y[i] * ij * delta_a_i) - (self.__Y[j] * jj * delta_a_j)
+
+                return b1_b2 / 2.0
 
         def updateAlphaJ(alpha_old_j, eta, L, H, i, j):
             alpha_j = alpha_old_j - ((self.__Y[j] * (E[i] - E[j])) / eta)
