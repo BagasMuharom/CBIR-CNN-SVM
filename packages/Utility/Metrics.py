@@ -40,7 +40,7 @@ class ConfusionMatrix:
         self.fig.suptitle(self.suptitle, fontsize = 20, va = 'center', ha = 'center')
 
         for index, subplot in enumerate(self.plots):
-            self.draw_conf_mat(subplot, index)
+            self.draw_conf_mat(subplot, index + 1)
 
     '''
     Menggambar suatu confusion matrix
