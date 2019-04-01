@@ -1,6 +1,10 @@
 from keras.models import Model
 import numpy as np
 
+'''
+Melakukan ekstraksi fitur terhadap semua citra yang di masukkan
+dan mendapatka fitur dari layer CNN yang diinginkan
+'''
 class FeatureExtractor:
 
     def __init__(self, model, output_layer = 'flatten'):
@@ -32,7 +36,20 @@ ke dalam file
 class FeatureWriter:
 
     def __init__(self, feature, dataset):
-        pass
+        self.feature = feature
+        self.dataset = dataset
+        self.path = None
+
+    def write(self, path):
+        self.path = path
+
+        for i in range(self.dataset.shape[0]):
+            self.dataset[i, 0] = self.feature[i]
+
+        self.save()
+
+    def save(self):
+        np.save(self.path, self.dataset)
 
 '''
 Class ini berfungsi untuk membaca feature yang sudah disimpan
