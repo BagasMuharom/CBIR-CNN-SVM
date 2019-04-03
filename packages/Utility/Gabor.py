@@ -37,6 +37,23 @@ class RotatedGaborParams(GaborParams):
         
         return self.lambd, theta, self.psi, self.sigma, self.gamma
 
+class ChannelizeGaborParams(GaborParams):
+    
+    def getParams(self, shape, i, j):
+        multiplier = 360 / shape[3]
+        degree = multiplier * i
+        
+        i += 1
+        j += 1
+        
+        lambd = (i * j) / shape[2]
+        theta = degree * np.pi / 180
+        psi = (i + j) / shape[2]
+        sigma = (i + j)
+        gamma = (i + j) / shape[2]
+        
+        return lambd, theta, psi, sigma, gamma
+
 # Mendapatkan filter gabor dalam jumlah yang besar
 # untuk digunakan sebagai kernel pada CNN
 class GaborFilterBanks(Initializer):
