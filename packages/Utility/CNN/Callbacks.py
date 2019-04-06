@@ -20,7 +20,11 @@ class ValidateModel(Callback):
         self.history['loss'].append(self.loss)
         self.history['acc'].append(self.val_acc)
 
-        print('Accuracy :', self.val_acc)
+        if self.val_acc > self.best_acc:
+            self.best_acc = self.val_acc
+            print(f'New best accuracy : {self.best_acc}')
+        else:
+            print('Accuracy :', self.val_acc)
 
 class StopTraining(Callback):
 
@@ -36,7 +40,7 @@ class StopTraining(Callback):
             self.best_acc = self.validate_model.val_acc
         else:
             self.passes += 1
-            print(f'Passes : {self.passes}/{self.maxpasses}')
+            print(f'Passes : {self.passes}/{self.max_passes}')
 
         if self.passes is self.max_passes:
             self.model.stop_training = True
@@ -53,7 +57,6 @@ class SaveModel(Callback):
         self.save_best = save_best
         self.validate_model = validate_model
         self.output_dir = None
-        self.best_acc = 0
         self.min_acc = min_acc
         self.initOutputDir()
 
@@ -70,13 +73,9 @@ class SaveModel(Callback):
     def on_epoch_end(self, epoch, logs = None):
         val_acc = self.validate_model.val_acc
 
-        if (self.save_best and val_acc > self.best_acc and val_acc > self.min_acc) or (val_acc >= self.min_acc):
+        if (self.save_best and val_acc > self.validate_model.best_acc and val_acc > self.min_acc) or (val_acc >= self.min_acc):
 
             self.model.save('{0}/acc {1:.4f} - epoch {2}.h5'.format(self.output_dir, val_acc, epoch))
 
-            print('Model Saved')
-
-            if val_acc > self.best_acc:
-                self.best_acc = val_acc
-                print(f'New best accuracy : {self.best_acc}')
+            print('Model saved to disk')
             
