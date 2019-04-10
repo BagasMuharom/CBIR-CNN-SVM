@@ -39,7 +39,7 @@ class RotatedGaborParams(GaborParams):
 
 class IterateChannelParams(GaborParams):
     
-    def __init__(self, lambd, sigma, gamma)
+    def __init__(self, lambd, sigma, gamma):
         self.lambd = lambd
         self.sigma = sigma
         self.gamma = gammba
