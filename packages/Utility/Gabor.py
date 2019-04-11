@@ -37,6 +37,30 @@ class RotatedGaborParams(GaborParams):
         
         return self.lambd, theta, self.psi, self.sigma, self.gamma
 
+class IterateChannelParams(GaborParams):
+    
+    def __init__(self, lambd, sigma, gamma):
+        self.lambd = lambd
+        self.sigma = sigma
+        self.gamma = gammba
+
+    def getParams(self, shape, i, j):
+        multiplier = 360 / shape[3]
+        degree = multiplier * i
+        num_channel = shape[2]
+        
+        i += 1
+        j += 1
+        ratio = j / num_channel
+        
+        lambd =  np.linspace(self.lambd[0], self.lambd[1], num_channel)[j - 1]
+        theta = degree * np.pi / 180
+        psi = j
+        sigma = np.linspace(self.sigma[0], self.sigma[1], num_channel)[j - 1]
+        gamma = np.linspace(self.gamma[0], self.gamma[1], num_channel)[j - 1]
+        
+        return lambd, theta, psi, sigma, gamma
+
 class ChannelizeGaborParams(GaborParams):
     
     def getParams(self, shape, i, j):
@@ -51,6 +75,24 @@ class ChannelizeGaborParams(GaborParams):
         psi = (i + j) / shape[2]
         sigma = (i + j)
         gamma = (i + j) / shape[2]
+        
+        return lambd, theta, psi, sigma, gamma
+
+class RandomGaborParams(GaborParams):
+
+    def getParams(self, shape, i, j):
+        multiplier = 360 / shape[3]
+        degree = multiplier * i
+        num_channel = shape[2]
+        
+        i += 1
+        j += 1
+        
+        lambd = np.random.rand() * num_channel
+        theta = degree * np.pi / 180
+        psi = np.random.rand() * num_channel
+        sigma = np.random.rand() * num_channel
+        gamma =np.random.rand() * num_channel
         
         return lambd, theta, psi, sigma, gamma
 
