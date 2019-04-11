@@ -59,10 +59,6 @@ class StopTraining(Callback):
             self.passes = 0
         else:
             self.passes += 1
-<<<<<<< Updated upstream
-=======
-            print(f'Passes : {self.passes}/{self.max_passes}')
->>>>>>> Stashed changes
 
         print(f'Passes : {self.passes}/{self.max_passes}')
         
