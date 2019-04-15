@@ -204,7 +204,7 @@ class CFNet3(BaseModel):
                 
         # Fully Connected
         model.add(Dense(1024, name = 'd1', activation = 'sigmoid'))
-        model.add(Dropout(0.25))
         model.add(Dense(10, name = 'output', activation = 'softmax'))
 
         self.model = model
+        
