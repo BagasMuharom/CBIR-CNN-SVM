@@ -94,6 +94,6 @@ class SaveModel(Callback):
 
         if (self.save_best and val_acc > self.validate_model.best_acc and val_acc > self.min_acc) or (val_acc >= self.min_acc):
 
-            self.model.save('{0}/acc {1:.4f} - epoch {2}.h5'.format(self.output_dir, val_acc, epoch))
+            self.model.save_weights('{0}/acc {1:.4f} - epoch {2}.h5'.format(self.output_dir, val_acc, epoch))
 
             print('Model saved to disk')

@@ -16,8 +16,7 @@ class BaseModel:
     def compile(self):
         self.model.compile(
             optimizer = self.optimizer,
-            loss = self.loss,
-            metrics = ['accuracy']
+            loss = self.loss
         )
         
     def save(self, path):
