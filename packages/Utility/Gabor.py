@@ -1,7 +1,6 @@
 import numpy as np
 import keras.backend as K
 from keras.initializers import Initializer
-import cv2 as cv
 
 # Membuat filter gabor
 def gaborFilter(size, lambd, theta, psi, sigma, gamma):
@@ -95,6 +94,68 @@ class RandomGaborParams(GaborParams):
         gamma =np.random.rand() * num_channel
         
         return lambd, theta, psi, sigma, gamma
+
+class ComplexGaborParams():
+    
+    def __init__(self, sigma = -1, lambd = -1, gamma = -1, psi = -1, theta = (-1, -1)):
+        self.theta = theta
+        self.sigma = sigma
+        self.lambd = lambd
+        self.gamma = gamma
+        self.psi = psi
+    
+    def getParams(self, shape, i, j):
+        self.i = i + 1
+        self.j = j + 1
+        self.shape = shape
+        
+        theta = self.hitungTheta() * np.pi / 180
+        sigma = self.hitungSigma()
+        lambd = self.hitungLambda()
+        gamma = self.hitungGamma()
+        psi = self.hitungPsi()
+        
+        return lambd, theta, psi, sigma, gamma
+    
+    def hitungTheta(self):
+        start = (360 / self.shape[2]) if self.theta[0] is -1 else self.theta[0]
+        end = (360 - (360 / self.shape[2])) if self.theta[1] is -1 else self.theta[1]
+        
+        rangeTheta = np.linspace(start, end, self.shape[3])
+        
+        return rangeTheta[self.i - 1]
+    
+    def hitungSigma(self):
+        start = (self.i + 1) if self.sigma is -1 else self.sigma[0]
+        end = (self.i + self.j) if self.sigma is -1 else self.sigma[1]
+        
+        rangeSigma = np.linspace(start, end, self.shape[2])
+        
+        return rangeSigma[self.j - 1]
+    
+    def hitungLambda(self):
+        start = ((self.i + 1) / self.shape[2]) if self.lambd is -1 else self.lambd[0]
+        end = (self.i * self.j / self.shape[2]) if self.lambd is -1 else self.lambd[1]
+        
+        rangeLambd = np.linspace(start, end, self.shape[2])
+        
+        return rangeLambd[self.j - 1]
+    
+    def hitungGamma(self):
+        start = ((self.i + 1) / self.shape[2]) if self.gamma is -1 else self.gamma[0]
+        end = ((self.i + self.j) / self.shape[2]) if self.gamma is -1 else self.gamma[1]
+        
+        rangeGamma = np.linspace(start, end, self.shape[2])
+        
+        return rangeGamma[self.j - 1]
+    
+    def hitungPsi(self):
+        start = (self.i + 1) if self.psi is -1 else self.psi[0]
+        end = (self.i + self.j) if self.psi is -1 else self.psi[1]
+        
+        rangePsi = np.linspace(start, end, self.shape[2])
+        
+        return rangePsi[self.j - 1]
 
 # Mendapatkan filter gabor dalam jumlah yang besar
 # untuk digunakan sebagai kernel pada CNN
