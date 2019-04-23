@@ -47,7 +47,7 @@ class AlexNet1(BaseModel):
         # Fully Connected
         model.add(Dense(4096, activation = 'relu', name = 'd1'))
         model.add(Dense(4096, activation = 'relu', name = 'd2'))
-        model.add(Dense(10, activation = 'relu', name = 'output'))
+        model.add(Dense(20, activation = 'relu', name = 'output'))
 
         self.model = model
 
@@ -101,6 +101,6 @@ class AlexNet2(BaseModel):
         model.add(Dropout(0.25))
         model.add(Dense(4096, activation = 'relu', name = 'd2'))
         model.add(Dropout(0.25))
-        model.add(Dense(10, activation = 'relu', name = 'output'))
+        model.add(Dense(20, activation = 'relu', name = 'output'))
 
         self.model = model
