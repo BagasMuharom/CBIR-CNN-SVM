@@ -14,7 +14,7 @@ class AlexNet1(BaseModel):
         c1 = Conv2D(96, kernel_size = 11, input_shape = (227, 227, 3), strides = 4, activation = 'relu', name = 'c1', kernel_initializer = self.kernels[1])
         mp1 = MaxPool2D(3, strides = 2, name = 'mp1')
 
-        c2 = Conv2D(256, kernel_size = 5, activation = 'relu', name = 'c2', kernel_initializer = self.kernels[2])
+        c2 = Conv2D(256, kernel_size = 5, activation = 'relu', name = 'c2', kernel_initializer = self.kernels[2], padding = 'same')
         mp2 = MaxPool2D(3, strides = 2, name = 'mp2')
 
         c3 = Conv2D(384, kernel_size = 3, activation = 'relu', name = 'c3', padding = 'same', kernel_initializer = self.kernels[3])
@@ -26,27 +26,34 @@ class AlexNet1(BaseModel):
 
         # Layer 1
         model.add(c1)
+        model.add(BatchNormalization())
         model.add(mp1)
 
         # Layer 2
         model.add(c2)
+        model.add(BatchNormalization())
         model.add(mp2)
 
         # Layer 3
         model.add(c3)
+        model.add(BatchNormalization())
 
         # Layer 4
         model.add(c4)
+        model.add(BatchNormalization())
 
         # Layer 5
         model.add(c5)
+        model.add(BatchNormalization())
         model.add(mp5)
 
         model.add(Flatten(name = 'flatten'))
 
         # Fully Connected
         model.add(Dense(4096, activation = 'relu', name = 'd1'))
+        model.add(Dropout(0.25))
         model.add(Dense(4096, activation = 'relu', name = 'd2'))
+        model.add(Dropout(0.25))
         model.add(Dense(20, activation = 'relu', name = 'output'))
 
         self.model = model
